@@ -15,6 +15,7 @@ const PICKUP_RADIUS = 12;
 const PICKUP_DURATION = 5000;
 const SHAKE_DECAY = 0.85;
 const ARENA_PAD = 40;
+const SPAWN_DURATION = 60; // frames (~1 second) for zombie to fully emerge
 
 // Enemy definitions
 const ENEMY_TYPES = {
@@ -127,6 +128,8 @@ export default function Game() {
         score: def.score,
         dropChance: def.dropChance,
         hitFlash: 0,
+        spawnProgress: 0, // 0 = just appearing, 1 = fully entered
+        spawnDelay: i * 8, // stagger spawns so they don't all appear at once
       });
     }
 
@@ -265,6 +268,21 @@ export default function Game() {
 
     // ── Enemies ─────────────────────────────────────
     for (const e of gs.enemies) {
+      // Handle spawn animation
+      if (e.spawnProgress < 1) {
+        if (e.spawnDelay > 0) {
+          e.spawnDelay -= dt;
+          continue; // waiting to start spawning
+        }
+        e.spawnProgress = Math.min(1, e.spawnProgress + dt / SPAWN_DURATION);
+
+        // Spawn particles (dirt/ground disturbance) during emergence
+        if (Math.random() < 0.3) {
+          spawnParticles(gs.particles, e.x, e.y, '#3a3a2a', 1, [0.5, 2], 300);
+        }
+        continue; // don't move or deal damage while spawning
+      }
+
       const dx = p.x - e.x;
       const dy = p.y - e.y;
       const d = Math.hypot(dx, dy) || 1;
@@ -432,8 +450,34 @@ export default function Game() {
 
     // ── Enemies ─────────────────────
     for (const e of gs.enemies) {
+      // Skip enemies still waiting to start spawning
+      if (e.spawnDelay > 0) continue;
+
       ctx.save();
       ctx.translate(e.x, e.y);
+
+      const spawning = e.spawnProgress < 1;
+      const sp = e.spawnProgress;
+
+      if (spawning) {
+        // Ground crack / emergence ring
+        const ringRadius = e.radius * 1.5 * sp;
+        ctx.beginPath();
+        ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(100, 60, 30, ${0.8 * (1 - sp)})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Inner dark portal
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius * sp * 0.8, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(20, 10, 5, ${0.6 * (1 - sp)})`;
+        ctx.fill();
+
+        // Scale and fade the zombie body during spawn
+        ctx.globalAlpha = sp;
+        ctx.scale(sp, sp);
+      }
 
       // Body
       ctx.beginPath();
@@ -464,8 +508,12 @@ export default function Game() {
       );
       ctx.fill();
 
+      if (spawning) {
+        ctx.globalAlpha = 1;
+      }
+
       // HP bar (if damaged)
-      if (e.hp < e.maxHp) {
+      if (!spawning && e.hp < e.maxHp) {
         const barW = e.radius * 2;
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(-barW / 2, -e.radius - 10, barW, 4);
