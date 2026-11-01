@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Graveyard Shift</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Chakra+Petch:wght@400;600;700&display=swap">
+</head>
+<body>
+<canvas id="game" aria-label="Game view"></canvas>
+<canvas id="overlay" aria-hidden="true"></canvas>
+
+<header id="hud" data-off>
+  <div class="hud-l">
+    <div class="score"><span id="hScore">0</span><span id="hMult" class="mult" hidden>×2</span></div>
+    <div class="wave">Wave <b id="hWave">1</b> · <span id="hLeft">0</span> left</div>
+    <div class="clock"><span id="hClockIco"></span><span id="hClock">16:30</span></div>
+  </div>
+  <div class="hud-r">
+    <div class="vitals">
+      <div class="hprow"><span class="lbl">Health</span><b id="hHpNum">100</b></div>
+      <div class="bar"><i id="hHp"></i></div>
+      <button class="ammo" id="hAmmo" type="button" aria-label="Reload"><span class="lbl" id="hGun">Pistol</span><span class="mag"><b id="hMag">12</b><span id="hMax">/12</span></span></button>
+      <div class="slots" id="hSlots"></div>
+    </div>
+    <button class="icon" id="bPause" type="button" aria-label="Pause">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+    </button>
+    <button class="icon" id="bMute" type="button" aria-label="Mute sound" aria-pressed="false">
+      <svg id="icoSound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      <svg id="icoMute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" hidden><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path d="M16 9l5 6M21 9l-5 6"/></svg>
+    </button>
+  </div>
+</header>
+
+<div id="banner" aria-live="polite"><div id="bTitle"></div><div id="bSub"></div></div>
+<div id="toast" aria-live="polite"></div>
+
+<div class="screen" id="screen">
+  <section class="panel" id="pStart">
+    <p class="eyebrow">Eastfield Cemetery · Night shift</p>
+    <h1>Graveyard<br>Shift</h1>
+    <p class="lede">The dead are climbing out of their plots. You have a torch and a pistol. Everything else you find out there is yours to keep. They move faster in the dark, so make it to sunrise.</p>
+    <ul class="foes">
+      <li><b>Walker</b><span>Slow and steady. Three hits.</span></li>
+      <li><b>Runner</b><span>From wave 3. Fast, goes down easy.</span></li>
+      <li><b>Brute</b><span>From wave 5. Sometimes drops gear.</span></li>
+    </ul>
+    <div class="armory" id="armory"></div>
+    <div class="controls">
+      <div><span class="lbl">Keyboard</span><span>WASD to move, mouse to aim, click to shoot, R to reload, 1–4 or Q to switch guns, P to pause</span></div>
+      <div><span class="lbl">Touch</span><span>Left thumb moves. Right thumb aims and fires. Tap a gun in the top bar to switch.</span></div>
+    </div>
+    <p class="best"><span class="lbl">Best shift</span><b id="sBest">0</b></p>
+    <div class="btns"><button class="cta" id="bStart" type="button">Start shift</button></div>
+  </section>
+
+  <section class="panel" id="pPause" hidden>
+    <p class="eyebrow">Wave <span id="psWave">1</span></p>
+    <h2>Paused</h2>
+    <div class="btns">
+      <button class="cta" id="bResume" type="button">Resume</button>
+      <button class="ghost" id="bRestart" type="button">Restart shift</button>
+    </div>
+  </section>
+
+  <section class="panel" id="pOver" hidden>
+    <p class="eyebrow">Shift over</p>
+    <h2 id="oTitle">They got you on wave 1</h2>
+    <dl class="stats">
+      <div><dt>Score</dt><dd id="oScore">0</dd></div>
+      <div><dt>Kills</dt><dd id="oKills">0</dd></div>
+      <div><dt>Best</dt><dd id="oBest">0</dd></div>
+    </dl>
+    <p class="newbest" id="oNew" hidden>New best shift</p>
+    <div class="btns">
+      <button class="cta" id="bAgain" type="button">Clock back in</button>
+      <button class="ghost" id="bMenu" type="button">Main menu</button>
+    </div>
+  </section>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
